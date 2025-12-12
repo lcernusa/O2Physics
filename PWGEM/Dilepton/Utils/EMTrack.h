@@ -17,8 +17,6 @@
 
 #include "Math/Vector4D.h"
 
-#include <vector>
-
 namespace o2::aod::pwgem::dilepton::utils
 {
 class EMTrack
@@ -57,6 +55,7 @@ class EMTrack
   float px() const { return fPt * std::cos(fPhi); }
   float py() const { return fPt * std::sin(fPhi); }
   float pz() const { return fPt * std::sinh(fEta); }
+  float e() const { return std::hypot(fPt * std::cosh(fEta), fMass); } // e2 = p2 + m2
   float signed1Pt() const { return fCharge * 1.f / fPt; }
 
  protected:
@@ -184,8 +183,11 @@ class EMPair : public EMTrack
   void setPositiveLegPxPyPzM(float px, float py, float pz, float m)
   {
     float pt = std::sqrt(px * px + py * py);
-    float eta = std::atanh(pz / sqrt(std::pow(px, 2) + std::pow(py, 2) + std::pow(pz, 2)));
+    float eta = std::atanh(pz / std::sqrt(std::pow(px, 2) + std::pow(py, 2) + std::pow(pz, 2)));
     float phi = std::atan2(py, px);
+    if (phi < 0.f) {
+      phi += 2.f * M_PI;
+    }
 
     fVPos.SetPt(pt);
     fVPos.SetEta(eta);
@@ -195,8 +197,11 @@ class EMPair : public EMTrack
   void setNegativeLegPxPyPzM(float px, float py, float pz, float m)
   {
     float pt = std::sqrt(px * px + py * py);
-    float eta = std::atanh(pz / std::sqrt(pow(px, 2) + std::pow(py, 2) + std::pow(pz, 2)));
+    float eta = std::atanh(pz / std::sqrt(std::pow(px, 2) + std::pow(py, 2) + std::pow(pz, 2)));
     float phi = std::atan2(py, px);
+    if (phi < 0.f) {
+      phi += 2.f * M_PI;
+    }
 
     fVNeg.SetPt(pt);
     fVNeg.SetEta(eta);
